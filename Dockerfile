@@ -19,7 +19,7 @@
 #  passing in environment variables MODEL and LABELS referring to
 #  the files.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 WORKDIR /tmp
 
@@ -32,18 +32,25 @@ RUN echo "deb https://packages.cloud.google.com/apt coral-cloud-stable main" | t
 RUN apt-get update && apt-get install -y python3 wget curl unzip python3-pip
 RUN apt-get -y install python3-edgetpu libedgetpu1-legacy-std
 
+# install the APP
+RUN cd /tmp && \
+    wget "https://github.com/robmarkcole/coral-pi-rest-server/archive/refs/tags/v1.0.zip" -O /tmp/server.zip && \
+    unzip /tmp/server.zip && \
+    rm -f /tmp/server.zip && \
+    mv coral-pi-rest-server-1.0 /app
+
+
 # fetch the models.  maybe figure a way to conditionalize this?
 # create models subdirectory for volume mount of custom models
 RUN  mkdir /models && \
      chdir /models && \
-     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite  && \
-     curl -q -O  https://dl.google.com/coral/canned_models/coco_labels.txt && \
-     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_face_quant_postprocess_edgetpu.tflite
+     wget https://dl.google.com/coral/canned_models/all_models.tar.gz -O /tmp/all_models.tar.gz && \
+     tar xvf /tmp/all_models.tar.gz && \
+     rm -f /tmp/all_models.tar.gz
+#     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite  && \
+#     curl -q -O  https://dl.google.com/coral/canned_models/coco_labels.txt && \
+#     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_face_quant_postprocess_edgetpu.tflite
 
-RUN cd /tmp && \
-    wget "https://github.com/robmarkcole/coral-pi-rest-server/archive/refs/tags/v1.0.zip" -O /tmp/server.zip && \
-    unzip /tmp/server.zip && \
-    mv coral-pi-rest-server-1.0 /app
 
 WORKDIR /app
 
@@ -55,4 +62,4 @@ ENV MODEL=mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite \
 
 EXPOSE 5000
 
-CMD  exec python3 coral-app.py --model  "${MODEL}" --labels "${LABELS}" --models_directory "${MODELS_DIRECTORY}"
+CMD exec python3 coral-app.py --model  "${MODEL}" --labels "${LABELS}" --models_directory "${MODELS_DIRECTORY}"

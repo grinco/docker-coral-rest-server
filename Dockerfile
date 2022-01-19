@@ -47,16 +47,15 @@ RUN  mkdir /models && \
      wget https://dl.google.com/coral/canned_models/all_models.tar.gz -O /tmp/all_models.tar.gz && \
      tar xvf /tmp/all_models.tar.gz && \
      rm -f /tmp/all_models.tar.gz
-#     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite  && \
-#     curl -q -O  https://dl.google.com/coral/canned_models/coco_labels.txt && \
-#     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_face_quant_postprocess_edgetpu.tflite
 
+RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3x_640_ptq_edgetpu.tflite -O /models/efficientdet_lite3x_640_ptq_edgetpu.tflite
+RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3_512_ptq_edgetpu.tflite -O /models/efficientdet_lite3_512_ptq_edgetpu.tflite
 
 WORKDIR /app
 
 RUN  pip3 install --no-cache-dir -r requirements.txt 
 
-ENV MODEL=mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite \
+ENV MODEL=efficientdet_lite3_512_ptq_edgetpu.tflite \
     LABELS=coco_labels.txt \
     MODELS_DIRECTORY=/models/
 

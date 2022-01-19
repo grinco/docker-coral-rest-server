@@ -42,9 +42,9 @@ RUN wget --trust-server-names -O edgetpu_api.tar.gz  https://dl.google.com/coral
 # create models subdirectory for volume mount of custom models
 RUN  mkdir /models && \
      chdir /models && \
-     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite  && \
-     curl -q -O  https://dl.google.com/coral/canned_models/coco_labels.txt && \
-     curl -q -O  https://dl.google.com/coral/canned_models/mobilenet_ssd_v2_face_quant_postprocess_edgetpu.tflite
+     curl -q -O  https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3x_640_ptq_edgetpu.tflite  && \
+     curl -q -O  https://raw.githubusercontent.com/google-coral/test_data/master/coco_labels.txt && \
+     curl -q -O  https://raw.githubusercontent.com/google-coral/test_data/master/ssd_mobilenet_v2_face_quant_postprocess_edgetpu.tflite 
 
 RUN cd /tmp && \
     wget "https://github.com/robmarkcole/coral-pi-rest-server/archive/v0.9.zip" -O /tmp/server.zip && \
@@ -55,7 +55,7 @@ WORKDIR /app
 
 RUN  pip3 install --no-cache-dir -r requirements.txt 
 
-ENV MODEL=mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite \
+ENV MODEL=efficientdet_lite3x_640_ptq_edgetpu.tflite \
     LABELS=coco_labels.txt \
     MODELS_DIRECTORY=/models/
 

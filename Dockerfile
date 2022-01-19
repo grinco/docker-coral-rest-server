@@ -48,6 +48,7 @@ RUN  mkdir /models && \
      tar xvf /tmp/all_models.tar.gz && \
      rm -f /tmp/all_models.tar.gz
 
+RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite -O /models/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite
 RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3x_640_ptq_edgetpu.tflite -O /models/efficientdet_lite3x_640_ptq_edgetpu.tflite
 RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3_512_ptq_edgetpu.tflite -O /models/efficientdet_lite3_512_ptq_edgetpu.tflite
 
@@ -55,7 +56,7 @@ WORKDIR /app
 
 RUN  pip3 install --no-cache-dir -r requirements.txt 
 
-ENV MODEL=efficientdet_lite3_512_ptq_edgetpu.tflite \
+ENV MODEL=ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite \
     LABELS=coco_labels.txt \
     MODELS_DIRECTORY=/models/
 

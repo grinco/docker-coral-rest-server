@@ -1,24 +1,3 @@
-
-#
-#  Louis Mamakos <louie@transsys.com>
-#  Philipp Hellmich <phil@hellmi.de>
-#
-#  Build a container to run the edgetpu flask daemon
-#
-#    docker build -t coral .
-#
-#  Run it something like:
-#
-#  docker run --restart=always --detach --name coral \
-#          -p 5000:5000 --device /dev/bus/usb:/dev/bus/usb   coral:latest
-#
-#  It's necessary to pass in the /dev/bus/usb device to communicate with the USB stick.
-#
-#  You can use alternative models by putting them into a directory
-#  that's mounted in the container, and then starting the container,
-#  passing in environment variables MODEL and LABELS referring to
-#  the files.
-
 FROM ubuntu:20.04
 
 WORKDIR /tmp
@@ -39,22 +18,19 @@ RUN cd /tmp && \
     rm -f /tmp/server.zip && \
     mv coral-pi-rest-server-1.0 /app
 
+RUN  pip3 install --no-cache-dir -r /app/requirements.txt
 
-# fetch the models.  maybe figure a way to conditionalize this?
-# create models subdirectory for volume mount of custom models
-RUN  mkdir /models && \
-     chdir /models && \
-     wget https://dl.google.com/coral/canned_models/all_models.tar.gz -O /tmp/all_models.tar.gz && \
-     tar xvf /tmp/all_models.tar.gz && \
-     rm -f /tmp/all_models.tar.gz
-
+RUN mkdir /models/
+RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/ssd_mobilenet_v2_face_quant_postprocess_edgetpu.tflite -O /models/ssd_mobilenet_v2_face_quant_postprocess_edgetpu.tflite
 RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite -O /models/ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite
-RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3x_640_ptq_edgetpu.tflite -O /models/efficientdet_lite3x_640_ptq_edgetpu.tflite
 RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3_512_ptq_edgetpu.tflite -O /models/efficientdet_lite3_512_ptq_edgetpu.tflite
+RUN wget https://raw.githubusercontent.com/google-coral/test_data/master/efficientdet_lite3x_640_ptq_edgetpu.tflite -O /models/efficientdet_lite3x_640_ptq_edgetpu.tflite
+RUN wget https://dl.google.com/coral/canned_models/coco_labels.txt -O /models/coco_labels.txt
 
 WORKDIR /app
 
-RUN  pip3 install --no-cache-dir -r requirements.txt 
+RUN wget https://raw.githubusercontent.com/grinco/coral-pi-rest-server/v1.0/coral-app.py -O /app/coral-app.py
+RUN ln -s /dev/stderr coral.log 
 
 ENV MODEL=ssdlite_mobiledet_coco_qat_postprocess_edgetpu.tflite \
     LABELS=coco_labels.txt \
